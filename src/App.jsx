@@ -8,12 +8,19 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
+  // Log the API key on first render to debug .env injection
+  useEffect(() => {
+    console.log("API KEY:", import.meta.env.VITE_OPENROUTER_API_KEY);
+  }, []);
+
+  // Load history from localforage on mount
   useEffect(() => {
     localforage.getItem('history').then((data) => {
       if (data) setHistory(data);
     });
   }, []);
 
+  // Save history to localforage whenever it changes
   useEffect(() => {
     localforage.setItem('history', history);
   }, [history]);
@@ -28,7 +35,7 @@ function App() {
         headers: {
           Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'http://localhost:5173'
+          'X-Title': 'http://localhost:5173'
         },
         body: JSON.stringify({
           model: 'openai/gpt-3.5-turbo',
@@ -40,13 +47,19 @@ function App() {
       });
 
       const data = await response.json();
+
+      if (!data.choices || !data.choices[0]) {
+        throw new Error("No choices returned.");
+      }
+
       const aiMessage = data.choices[0].message.content;
 
       const newItem = { prompt: input, response: aiMessage };
       setHistory([newItem, ...history]);
       setInput('');
     } catch (err) {
-      alert('API Error. Check your key.');
+      console.error("Fetch error:", err);
+      alert('API Error. Check your key and network connection.');
     } finally {
       setLoading(false);
     }
@@ -74,6 +87,7 @@ function App() {
   return (
     <div className="container">
       <h1>🧠 AI Writing Assistant</h1>
+
       <div className="input-group">
         <input
           type="text"
@@ -85,7 +99,9 @@ function App() {
         <button onClick={handleSubmit}>Generate</button>
         <button className="clear-all" onClick={clearAll}>Clear All</button>
       </div>
+
       {loading && <p>Generating...</p>}
+
       <input
         type="text"
         className="search"
@@ -93,6 +109,7 @@ function App() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+
       <div className="history">
         {filteredHistory.map((item, i) => (
           <div key={i} className="history-item">
