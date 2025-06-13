@@ -2,7 +2,7 @@
 # AI Writing Assistant
 
 ![Build](https://github.com/Nice-91/ai-writing-assistant/actions/workflows/ci.yml/badge.svg)
-
+A smart writing assistant built with React.
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
