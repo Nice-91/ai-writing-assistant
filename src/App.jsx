@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import localforage from 'localforage';
+import React from 'react';
+
 import './App.css';
 
 function App() {
