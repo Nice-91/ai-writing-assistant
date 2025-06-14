@@ -31,8 +31,7 @@ function App() {
           'X-Title': 'ai-writing-assistant',
         },
         body: JSON.stringify({
-          model: 'openrouter/openai/gpt-3.5-turbo',
-
+        modle: "openrouter/meta-llama/llama-3-8b-instruct",
           messages: [
             { role: 'system', content: 'You are a helpful writing assistant.' },
             { role: 'user', content: input },
@@ -41,7 +40,7 @@ function App() {
       });
 
       const data = await response.json();
-      console.log('API response:', data);
+      console.log("API response:", JSON.stringify(data, null, 2));
 
       if (!data.choices || !data.choices[0]) {
         throw new Error('No choices returned.');
