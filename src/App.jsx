@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import localforage from 'localforage';
-import React from 'react';
-
 import './App.css';
 
 function App() {
@@ -10,19 +8,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
-  // Log the API key on first render to debug .env injection
-  useEffect(() => {
-    console.log("API KEY:", import.meta.env.VITE_OPENROUTER_API_KEY);
-  }, []);
-
-  // Load history from localforage on mount
   useEffect(() => {
     localforage.getItem('history').then((data) => {
       if (data) setHistory(data);
     });
   }, []);
 
-  // Save history to localforage whenever it changes
   useEffect(() => {
     localforage.setItem('history', history);
   }, [history]);
@@ -37,21 +28,23 @@ function App() {
         headers: {
           Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
-          'X-Title': 'http://localhost:5173'
+          'X-Title': 'ai-writing-assistant',
         },
         body: JSON.stringify({
-          model: 'openai/gpt-3.5-turbo',
+          model: 'openrouter/openai/gpt-3.5-turbo',
+
           messages: [
             { role: 'system', content: 'You are a helpful writing assistant.' },
-            { role: 'user', content: input }
-          ]
-        })
+            { role: 'user', content: input },
+          ],
+        }),
       });
 
       const data = await response.json();
+      console.log('API response:', data);
 
       if (!data.choices || !data.choices[0]) {
-        throw new Error("No choices returned.");
+        throw new Error('No choices returned.');
       }
 
       const aiMessage = data.choices[0].message.content;
@@ -60,8 +53,8 @@ function App() {
       setHistory([newItem, ...history]);
       setInput('');
     } catch (err) {
-      console.error("Fetch error:", err);
-      alert('API Error. Check your key and network connection.');
+      console.error('Fetch error:', err);
+      alert('API Error. Check your key, model, or internet connection.');
     } finally {
       setLoading(false);
     }
@@ -115,7 +108,7 @@ function App() {
       <div className="history">
         {filteredHistory.map((item, i) => (
           <div key={i} className="history-item">
-            <strong>You:</strong> {item.prompt}
+            <p><strong>You:</strong> {item.prompt}</p>
             <pre><strong>AI:</strong> {item.response}</pre>
             <button className="delete-btn" onClick={() => handleDelete(i)}>×</button>
           </div>
