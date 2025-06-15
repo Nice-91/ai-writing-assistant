@@ -17,6 +17,10 @@ function App() {
   useEffect(() => {
     localforage.setItem('history', history);
   }, [history]);
+  useEffect(() => {
+    console.log("🧪 Deployed API KEY:", import.meta.env.VITE_OPENROUTER_API_KEY);
+  }, []);
+  
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -41,6 +45,8 @@ function App() {
 
       const data = await response.json();
       console.log("API response:", JSON.stringify(data, null, 2));
+      console.log('KEY FROM ENV:', import.meta.env.VITE_OPENROUTER_API_KEY);
+
 
       if (!data.choices || !data.choices[0]) {
         throw new Error('No choices returned.');
